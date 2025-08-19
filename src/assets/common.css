@@ -1,0 +1,160 @@
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-box {
+  display: grid;
+  gap: 16px;
+}
+.filter-head {
+  display: flex;
+  gap: 8px;
+}
+.filter-head i {
+  display: none;
+}
+.filter-head h3 {
+  font-family: "Poppins";
+  margin: 0;
+  padding: 0;
+  color: #282828;
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+.course-filter {
+  display: grid;
+  gap: 16px;
+}
+.course-filter ul {
+  display: grid;
+  gap: 16px;
+}
+.course-filter ul li {
+  display: flex;
+  gap: 8px;
+  /* align-items: center; */
+}
+.course-filter ul li label {
+  color: #282828;
+  line-height: 17px;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  font-family: "Poppins";
+}
+.course-filter ul li .course-filter-inbox {
+  max-width: 16px;
+  max-height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  background-size: 8px 8px;
+}
+.course-filter .show-more {
+  margin: 0;
+  padding: 0;
+  color: #282828;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  line-height: 17px;
+  padding-bottom: 4px;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  border: 0;
+  font-family: "Poppins";
+}
+.course-filter .show-more:before {
+  content: "";
+  width: 100%;
+  height: 1px;
+  background: #282828;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.filter-search-bar input.filter-search {
+  margin: 0;
+  border: 1px solid #666666;
+  border-radius: 11px;
+  padding: 0 15px 0 49px;
+  color: #666666;
+  font-size: 14px;
+  font-family: "Montserrat";
+  font-weight: 400;
+}
+.filter-search-bar img {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  transform: translateY(-50%);
+}
+
+.leftShape:before {
+  content: "";
+  background-color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: -14px;
+  width: 14px;
+  height: 14px;
+}
+
+.leftShape:after {
+  content: "";
+  border-radius: 100px;
+  background-color: #282828;
+  position: absolute;
+  bottom: 0;
+  left: -30px;
+  width: 30px;
+  height: 30px;
+}
+.rightShape:before {
+  content: "";
+  background-color: #fff;
+  position: absolute;
+  bottom: 0;
+  right: -14px;
+  width: 14px;
+  height: 14px;
+}
+
+.rightShape:after {
+  content: "";
+  border-radius: 100px;
+  background-color: #282828;
+  position: absolute;
+  bottom: 0;
+  right: -30px;
+  width: 30px;
+  height: 30px;
+}
+
+@media (max-width: 1024px) {
+  .Empowering {
+    margin-bottom: -1px;
+    background: url(../images/bg-01.png) no-repeat 0 0 / 100% 100%;
+  }
+}
+
+@media (max-width: 439px) {
+  .leftShape:after {
+    bottom: 7px;
+    left: -16px;
+    width: 16px;
+    height: 30px;
+  }
+  .rightShape:after {
+    bottom: 7px;
+    right: -16px;
+    width: 16px;
+    height: 30px;
+  }
+}

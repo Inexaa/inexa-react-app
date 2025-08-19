@@ -1,0 +1,28 @@
+.column-one:nth-child(2):before {
+    position: absolute;
+    left: -34px;
+    content: "";
+    height: 100%;
+    border-left: 4px solid #FFC21B;
+    transform: skew(-23deg, -3deg);
+    top: 0;
+}
+
+.column-one:nth-child(2) {
+    position: relative;
+}
+.column-one:nth-child(2):after {
+    position: absolute;
+    right: -34px;
+    content: "";
+    height: 100%;
+    border-left: 4px solid #FFC21B;
+    transform: skew(-23deg, -3deg);
+    top: 0;
+}
+
+@media screen and (max-width: 960px) {
+    .column-one:nth-child(2):after, .column-one:nth-child(2)::before{
+        display: none;
+    }
+}

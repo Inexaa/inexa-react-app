@@ -1,0 +1,60 @@
+/* .team-member .main-icon:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 55px;
+  height: 118px;
+  background-color: red;
+  bottom: 0;
+  left: 1px;
+} */
+/* .team-member .image img{
+    position: relative;
+} */
+
+.team-member .image::before {
+  content: "";
+  top: 60%;
+  left: 60%;
+  width: 200%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  background-color: #3322ff;
+  filter: blur(50px);
+  border-radius: 50%;
+  transform: translateX(-50%) rotate(5deg);
+  transition: opacity 0.3s;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+}
+.team-member:hover .image::before {
+  opacity: 1;
+}
+
+.team-member .rounded-border::before {
+  content: "";
+  position: absolute;
+  background-color: rgba(255, 0, 0, 0.486);
+  background-color: transparent;
+  width: 20px;
+  height: 32px;
+  bottom: 8px;
+  left: -17.5px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 20px 0 0 #ffffff;
+}
+.team-member .rounded-border::after {
+  content: "";
+  position: absolute;
+  background-color: rgba(255, 0, 0, 0.486);
+  background-color: transparent;
+  width: 20px;
+  height: 32px;
+  bottom: 7px;
+  left: 68px;
+  border-bottom-left-radius: 20px;
+  box-shadow: 0 20px 0 0 #ffffff;
+}

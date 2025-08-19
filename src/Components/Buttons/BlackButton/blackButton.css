@@ -1,0 +1,16 @@
+.border-gradient:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(90deg, #282828, #3221FF);
+    border-radius: 9999px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+}
+.border-gradient {
+    position: relative;
+    z-index: 0;
+}

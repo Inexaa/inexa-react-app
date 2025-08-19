@@ -1,0 +1,33 @@
+.footer .footer-widget .capitalize li a{
+    position: relative;
+    transition: all .3s;
+}
+.footer .footer-widget .capitalize li a::after,
+.footer .footer-widget .capitalize li a::before {
+    content: '/';
+    position: absolute;
+    display: block;
+    top: 4px;
+    left: 0;
+    -webkit-transition: opacity 0.3s;
+    transition: opacity 0.3s;
+    opacity: 0;
+}
+
+.footer .footer-widget .capitalize li a:hover::after{
+    right: 0;
+    left: initial;
+}
+.footer .footer-widget .capitalize li{
+    padding: 0 10px;
+}
+.footer .footer-widget .capitalize li a:hover + footer .footer-widget .capitalize li{
+    padding: 0;
+}
+.footer .footer-widget .capitalize li a:hover{
+    padding: 0 10px;
+}
+.footer .footer-widget .capitalize li a:hover::before,  
+.footer .footer-widget .capitalize li a:hover::after {
+    opacity: 1;
+}

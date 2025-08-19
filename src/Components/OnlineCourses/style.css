@@ -1,0 +1,4 @@
+.pagination-btn:hover img{
+    -webkit-filter: invert(100%); /* Safari/Chrome */
+    filter: invert(100%);
+}

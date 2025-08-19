@@ -1,0 +1,54 @@
+/* ====== Home Page ====== */
+/* --Number Counter---- */
+.counter-home .number-counter ul li:nth-child(even) h4 {
+  text-align: center;
+}
+.counter-home .number-counter ul li:nth-child(even) p {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* --End Number Counter---- */
+
+/* ------ Sponser Slider ------ */
+
+.sponser-slides article {
+  width: 200%;
+  animation: bannermove 3s linear infinite;
+}
+
+@keyframes bannermove {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+/* ------ End Sponser Slider ------ */
+
+.hero-content .top-image {
+  background-position-x: -30px;
+  background-position-y: 100%;
+}
+@media screen and (max-width: 1180px) {
+  .hero-content .top-image {
+    background-position-x: -80px;
+    background-position-y: 20%;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .hero-content .top-image {
+    background-position-x: -100px;
+    background-position-y: 20%;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .hero-content .top-image {
+    background-position-x: -20px;
+    background-size: contain;
+  }
+}
+
+/* ====== End Home Page ====== */

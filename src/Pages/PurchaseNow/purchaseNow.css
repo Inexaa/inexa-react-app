@@ -1,0 +1,11 @@
+
+.PhoneInputCountry{
+  @apply border gap-1  py-1 px-2 h-[60px] focus:outline-none border-slate-300 placeholder:text-[#cccccc] text-[15px];
+}
+.PhoneInputInput{
+  @apply border  py-1 px-2 h-[60px] focus:outline-none border-slate-300 placeholder:text-[#cccccc] text-[15px];
+}
+
+#billing-form .billing-input .PhoneInputCountry{
+  @apply  h-auto ;
+}

@@ -1,0 +1,6 @@
+.carousel-item{
+    @apply !flex justify-center items-center px-2 ;
+}
+.carousel-image{
+    @apply w-[140px] ;
+}

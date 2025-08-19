@@ -1,0 +1,92 @@
+.testi-widget {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  column-width: 250px;
+  column-gap: 20px;
+  max-width: 100%;
+  z-index: 100;
+  -ms-grid-column: span 1;
+  grid-column-start: span 1;
+  -ms-grid-column-span: 1;
+  grid-column-end: span 1;
+  -ms-grid-row: span 1;
+  grid-row-start: span 1;
+  -ms-grid-row-span: 1;
+  grid-row-end: span 1;
+}
+.testi-widget .top-box {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 20px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid-column;
+  min-width: 100%;
+  margin-bottom: 20px;
+}
+
+/* .overlay-testimoni {
+  background-image: url(/images/testi_overlay.png);
+  position: absolute;
+  bottom: -90px;
+  width: 100%;
+  content: "";
+  height: 414px;
+  background-size: cover;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  background-position: bottom center;
+} */
+.overlay-testimoni {
+  /* background-image: linear-gradient(to bottom, #d9d9d9, #e2e2e2, #ececec, #f5f5f5, #ffffff); */
+  background-image: linear-gradient(to bottom, #d9d9d9, #c0bbbb);
+  position: absolute;
+  bottom: 00px;
+  width: 100%;
+  content: "";
+  height: 200px;
+  background-size: cover;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  background-position: bottom center;
+  filter: blur(60px);
+}
+.testimonials .slick-list {
+  margin-right: -14px;
+  margin-left: -14px;
+}
+
+.testimonials .mobile-carousel .slick-dots {
+  bottom: -110px;
+  padding-bottom: 4px;
+}
+.testimonials .slick-dots li {
+  margin: 0 2px;
+}
+
+.testimonials .mobile-carousel .slick-arrow {
+  top: 137%
+}
+.testimonials .slick-prev:before,
+.testimonials .slick-next:before {
+  font-size: initial;
+}
+.testimonials .slick-prev:before {
+  content: url("/images/slider_arrow_left.svg");
+}
+
+.testimonials .slick-next:before {
+  content: url("/images/slider_arrow_right.svg");
+}

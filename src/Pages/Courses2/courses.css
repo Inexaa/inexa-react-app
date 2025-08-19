@@ -1,0 +1,75 @@
+.search-course-title{
+    @apply text-[22px] tracking-[0.4px] mb-2
+}
+.course-sort-bar{
+    @apply flex items-center justify-between
+}
+
+/* --- Sort Bar List --- */
+.sort-bar-list::-webkit-scrollbar {
+    display: none;
+  }
+/* --- End Sort Bar List --- */
+
+/* --- Filter Labels --- */
+.subject-filter-container::-webkit-scrollbar{
+    display: none
+}
+.filter-container-main{
+    @apply border border-borderColor2 rounded-[11px]  mid:border-none mb-6 last-of-type:mb-0
+    /* h-12 overflow-y-hidden hover:overflow-y-visible hover:h-max */
+}
+.filter-title{
+    @apply font-Poppins text-lg lg:text-[22px] text-headingColor font-medium flex items-center gap-x-6 gap-y-2 pe-3 ps-3 mid:ps-0 py-1  cursor-pointer;
+}
+.filter-data{
+    @apply p-3 mid:ps-0 pt-0  
+}
+.subject-filter-list{
+    @apply flex flex-col gap-4 pb-2 mt-2 
+}
+.filter-search{
+    @apply border border-textColor2 focus:outline-none rounded-[11px] w-full lg:max-w-[260px] h-10 ps-10 pe-4 mt-2 mb-3 text-sm font-Poppins font-medium
+     placeholder:text-textColor2 placeholder:font-Poppins placeholder:font-medium;
+}
+.subject-filter-list-item{
+    @apply flex items-center gap-2
+}
+
+.course-filter-label{
+    @apply text-headingColor text-[16px] cursor-pointer
+}
+.show-more{
+    @apply text-lg font-Montserrat text-headingColor w-max px-2 border-b border-blackColor2 cursor-pointer mt-2;
+}
+
+.course-filter-inbox{
+    cursor: pointer;
+    min-width: 22px;
+    min-height: 22px;
+    appearance: none;
+    position: relative;
+    border: 1px solid #282828;
+    border-radius: 50%;
+    background-image: url('/images/filter_blk_A.svg');
+    filter: grayscale(40%);
+    filter: invert(.3);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.course-filter-inbox:checked{
+    background-color: #282828;
+    background-image: url('/images/filter_wht_A.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: none;
+}
+/* ---BreadCrumb--- */
+ .breadcrumb-item{
+    @apply size-9 border border-blackColor2 text-headingColor hover:bg-blackColor2  hover:text-white flex items-center justify-center rounded-full text-[20px] font-semibold duration-300 cursor-pointer
+ }
+ .breadcrumb-item-active{
+    @apply size-9 border border-blackColor2 bg-blackColor2 text-white flex items-center justify-center rounded-full text-[20px] font-semibold
+ }
+/* ---End BreadCrumb--- */
+/* --- End Filter Labels --- */

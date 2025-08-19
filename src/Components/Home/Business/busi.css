@@ -1,0 +1,12 @@
+h2 span {
+    opacity: 0;
+    display: inline-block;
+    transform: translateY(30px);
+  }
+  
+  h2 span.aos-animate {
+    opacity: 1;
+    transform: translateY(0);
+    transition: transform 1s ease, opacity 1s ease;
+  }
+  
