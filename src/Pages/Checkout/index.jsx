@@ -14,6 +14,7 @@ import { UserContext } from "../../UserContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import SuccessPage from "./SuccessPage";
+import { useCurrency } from "../../context/CurrencyContext";
 
 const Checkout = () => {
   const { user } = useContext(UserContext);
@@ -30,20 +31,22 @@ const Checkout = () => {
   const [success, setSuccess] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [countries, setCountries] = useState([]);
-  const firstPaymentAmount = import.meta.env.VITE_FIRST_PAYMENT_AMOUNT;
-  const quarterlyPaymentAmount = import.meta.env.VITE_QUARTERLY_PAYMENT_AMOUNT;
+  
+  const { 
+    getDisplayPrice, 
+    isLocalCurrency, 
+    firstPaymentAmountUSD: firstPaymentAmount, 
+    quarterlyPaymentAmountUSD: quarterlyPaymentAmount 
+  } = useCurrency();
 
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get(
-          "https://countriesnow.space/api/v0.1/countries"
-        );
-        setCountries(response.data.data.map((country) => country.country)); // Assuming data is inside 'data' field
-        setLoading(false);
+        const response = await axios.get("https://countriesnow.space/api/v0.1/countries");
+        setCountries(response.data.data.map((c) => c.country));
       } catch (error) {
-        setError("Error fetching country data");
-        setLoading(false);
+        console.error("Error fetching countries:", error);
+        setCountries([]);
       }
     };
 
@@ -129,7 +132,7 @@ const Checkout = () => {
                             Price
                           </h5>
                           <h6 className="text-[12px] md:text-[16px] font-medium leading-[20px] lg:leading-[24px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00 *
+                            {getDisplayPrice("first")} *
                           </h6>
                         </div>
                         <div className="">
@@ -145,7 +148,7 @@ const Checkout = () => {
                             Subtotal
                           </h5>
                           <h6 className="text-[12px] md:text-[16px] font-medium leading-[20px] lg:leading-[24px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00*
+                            {getDisplayPrice("first")}*
                           </h6>
                         </div>
                       </div>
@@ -159,14 +162,14 @@ const Checkout = () => {
                         </div>
                         <div className="">
                           <h6 className="text-[16px] font-[500] leading-[27px] lg:leading-[30px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00 *
+                            {getDisplayPrice("first")} *
                           </h6>
                         </div>
                       </div>
                       <p className="text-[12px] md:text-[14px] leading-[17px] lg:leading-[20px] font-[500] text-[#333333]">
-                        * This total contains an approximate conversion. You
-                        will be charged ${firstPaymentAmount}.00 USD as 1st
-                        payment for your annual subscription.
+                        * {isLocalCurrency 
+                          ? `Converted from $${firstPaymentAmount}.00 USD. You will be charged $${firstPaymentAmount}.00 USD as 1st payment for your annual subscription.` 
+                          : `This total contains an approximate conversion. You will be charged $${firstPaymentAmount}.00 USD as 1st payment for your annual subscription.`}
                       </p>
                     </li>
                   </ul>
@@ -313,7 +316,7 @@ const Checkout = () => {
                             Price
                           </h5>
                           <h6 className="text-[16px] font-[500] leading-[24px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00 *
+                            {getDisplayPrice("first")} *
                           </h6>
                         </div>
                         <div className="">
@@ -329,7 +332,7 @@ const Checkout = () => {
                             Subtotal
                           </h5>
                           <h6 className="text-[16px] font-[500] leading-[24px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00*
+                            {getDisplayPrice("first")}*
                           </h6>
                         </div>
                       </div>
@@ -343,14 +346,14 @@ const Checkout = () => {
                         </div>
                         <div className="">
                           <h6 className="text-[16px] font-[500] leading-[24px] m-0 text-[#333333]">
-                            ${firstPaymentAmount}.00 *
+                            {getDisplayPrice("first")} *
                           </h6>
                         </div>
                       </div>
                       <p className="text-[14px] leading-[20px] font-[500] text-[#333333]">
-                        * This total contains an approximate conversion. You
-                        will be charged ${firstPaymentAmount}.00 USD as 1st
-                        payment for your annual subscription.
+                        * {isLocalCurrency 
+                          ? `Converted from $${firstPaymentAmount}.00 USD. You will be charged $${firstPaymentAmount}.00 USD as 1st payment for your annual subscription.` 
+                          : `This total contains an approximate conversion. You will be charged $${firstPaymentAmount}.00 USD as 1st payment for your annual subscription.`}
                       </p>
                     </li>
                   </ul>
@@ -460,7 +463,7 @@ const Checkout = () => {
                           max-[767px]:items-center  max-[767px]:pb-4 max-[767px]:px-5 max-[1024px]:pl-10"
                         >
                           <p className="flex text-[#282828] text-[28px] font-bold font-Poppins items-center leading-[45px]">
-                            ${firstPaymentAmount}
+                            {getDisplayPrice("first")}
                             <sub className="text-[14px] font-Montserrat font-medium leading-[100%] pt-2 pl-2 max-[1024px]:whitespace-nowrap">
                               / 1{" "}
                               <sup className="text-[10px] font-Montserrat font-medium leading-[100%] -ml-[5px]">
@@ -478,8 +481,8 @@ const Checkout = () => {
                                 1
                               </sup>
                               Registration applies to the first payment of $
-                              {firstPaymentAmount}.00, after which plans are
-                              converted to quartely.
+                              {firstPaymentAmount}.00 USD, after which plans are
+                              converted to quarterly.
                             </p>
                           </div>
                         </div>
@@ -563,7 +566,7 @@ const Checkout = () => {
                           max-[767px]:items-center  max-[767px]:pb-4 max-[767px]:px-5 max-[1024px]:pl-10"
                         >
                           <p className="flex text-[#3322FF] text-[28px] font-bold font-Poppins items-center leading-[42px]">
-                            ${quarterlyPaymentAmount}
+                            {getDisplayPrice("quarterly")}
                             <sub className="text-[14px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
                               / Quarterly
                             </sub>{" "}
@@ -577,18 +580,14 @@ const Checkout = () => {
                                 1
                               </sup>
                               Three quarterly payments of $
-                              {quarterlyPaymentAmount}.00.
+                              {quarterlyPaymentAmount}.00 USD.
                             </p>
                             <p className="text-[10px] text-[#363636] font-Montserrat leading-[12px] relative pl-2.5">
                               <sup className="absolute left-0 text-[9px] pr-1 top-1">
                                 2
                               </sup>
-                              Total price of $
-                              {firstPaymentAmount + quarterlyPaymentAmount * 3}{" "}
-                              for 1st payment of ${firstPaymentAmount}.00 +
-                              three quarterly payments of $
-                              {quarterlyPaymentAmount}.00 for an annual
-                              subscription.
+                              Total: {getDisplayPrice("total")}{" "}
+                              ({isLocalCurrency ? `$${Number(firstPaymentAmount) + Number(quarterlyPaymentAmount) * 3} USD` : "1st payment + 3 quarterly"}).
                             </p>
                           </div>
                         </div>

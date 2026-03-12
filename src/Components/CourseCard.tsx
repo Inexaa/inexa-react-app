@@ -3,10 +3,32 @@ import { Link } from "react-router-dom";
 import { getCourseTypeStyles } from "../Pages/Courses2/AllCourses";
 import { capitalizeFirst, formatDateShort } from "../utils";
 import { convertWeeksToMonths } from "../Pages/Courses2";
+import { useCurrency } from "../context/CurrencyContext";
 
 const CourseCard = ({ item, favorites, index, handleFavorite }) => {
+    const { convertToLocalCurrency, formatCurrency } = useCurrency();
 
     const isProgram = item.content_type === "program";
+    
+    const formatPrice = (amount: number) => {
+        if (!amount) return '';
+        const converted = convertToLocalCurrency(amount);
+        return formatCurrency(converted);
+    };
+
+    const renderPrice = () => {
+        const pricing = item.pricing;
+        if (!pricing) return null;
+        if (pricing.quarterly_payment) {
+            return (
+                <span className="font-semibold text-[#282828]">
+                    {formatPrice(pricing.quarterly_payment)}/qtr
+                </span>
+            );
+        }
+
+        return null;
+    };
     const style = getCourseTypeStyles(item.content_type === "course" ? item.content_type : item.program_type_slug);
     return (
         <Link
@@ -111,6 +133,18 @@ const CourseCard = ({ item, favorites, index, handleFavorite }) => {
                                 {item.start_date ? formatDateShort(item.start_date) : '-'}
                             </span>
                         </li>
+                        {item.pricing && (
+                            <li className="flex items-center gap-3">
+                                <img
+                                    src={'/images/$currency.svg'}
+                                    alt="Price"
+                                    className="max-h-[12px] lg:max-h-[16px]"
+                                />
+                                <span className="font-medium text-[11px] lg:text-[12px] font-Montserrat leading-[13px] lg:leading-[16px] -tracking-[.02em] text-[#282828]">
+                                    {renderPrice()}
+                                </span>
+                            </li>
+                        )}
                     </ul>
 
                     <div className="absolute right-0 bottom-0 z-10">

@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useContext } from "react";
 import Layout from "../../Components/Layout";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import CourseHighlights from "../../Components/CourseHighlights";
-import axiosInstance from "../../api/axiosInstance"; // Import the axios instance
+import axiosInstance from "../../api/axiosInstance";
 import HtmlListWithIcon from "../../Components/HtmlListWithIcon";
 import { parseModuleBreakdown } from "../../utils";
 import Container from "../../Components/Container";
 import { getCourseTypeStyles } from "../Courses2/AllCourses";
 import { convertWeeksToMonths } from "../Courses2";
+import { useCurrency } from "../../context/CurrencyContext";
+import { UserContext } from "../../UserContext";
+import EnquiryPopup from "../../Components/EnquiryPopup";
+import useEnquiryPopup from "../../hooks/useEnquiryPopup";
 //Section Prerequisities
 const prerequisitesData = {
   title: "Prerequisites",
@@ -114,11 +118,70 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { courseId } = useParams();
-  const [openLangModal, setOpenLangModal] = useState(null); // 'available' | 'transcript' | null
+  const [openLangModal, setOpenLangModal] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [descOverflow, setDescOverflow] = useState(false);
   const descRef = useRef(null);
   const navigate = useNavigate();
+  
+  const { user } = useContext(UserContext);
+  
+  const { 
+    getDisplayPrice, 
+    isLocalCurrency, 
+    firstPaymentAmountUSD, 
+    quarterlyPaymentAmountUSD,
+    convertToLocalCurrency,
+    formatCurrency
+  } = useCurrency();
+  
+  const isProgram = courseData?.content_type === "program";
+  
+  const { showPopup, closePopup, markSubmitted } = useEnquiryPopup(
+    !!courseData,  // Enable for all courses when data is loaded
+    courseData?.id
+  );
+
+  // Helper to format course-specific pricing with currency conversion
+  const formatCoursePrice = (amount) => {
+    if (!amount) return '';
+    const converted = convertToLocalCurrency(amount);
+    return formatCurrency(converted);
+  };
+
+  const getPricingDisplay = () => {
+    const pricing = courseData?.pricing;
+    if (!pricing) return null;
+
+    if (pricing.type === 'subscription') {
+      return {
+        type: 'subscription',
+        mainPrice: getDisplayPrice("quarterly"),
+        mainLabel: '/ Quarterly',
+        firstPayment: getDisplayPrice("first"),
+        total: getDisplayPrice("total"),
+        usdTotal: firstPaymentAmountUSD + quarterlyPaymentAmountUSD * 3,
+        quarterlyUsd: quarterlyPaymentAmountUSD,
+        firstPaymentUsd: firstPaymentAmountUSD
+      };
+    }
+
+    if (pricing.type === 'custom') {
+      const totalAnnual = pricing.first_payment + (pricing.quarterly_payment * 3);
+      return {
+        type: 'custom',
+        mainPrice: formatCoursePrice(pricing.quarterly_payment),
+        mainLabel: '/ Quarterly',
+        firstPayment: formatCoursePrice(pricing.first_payment),
+        total: formatCoursePrice(totalAnnual),
+        usdTotal: totalAnnual,
+        quarterlyUsd: pricing.quarterly_payment,
+        firstPaymentUsd: pricing.first_payment
+      };
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     console.log("working :>> ");
@@ -178,7 +241,6 @@ const CourseDetail = () => {
       .replace(/ /g, " ");
   }
 
-  const isProgram = courseData?.content_type === "program";
   // Build highlights dynamically from API data
   const courseHighlightsData = [
     {
@@ -988,163 +1050,320 @@ const CourseDetail = () => {
                     </ul>
                   </div>
                   <div className="w-full max-[767px]:mx-auto max-[767px]:w-[264px] lg:w-[283px] max-[1024px]:flex max-[1024px]:flex-col max-[1024px]:justify-center max-[1024px]:items-center max-[1024px]:mt-4 max-[1024px]:pb-4">
-                    <p className="flex text-[#3322FF] text-[48px] font-bold font-Poppins items-center leading-[48px]">
-                      $222
-                      <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
-                        / Quarterly
-                      </sub>{" "}
-                      <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[5px] pl-0.5">
-                        12
-                      </sup>
-                    </p>
-                    <button className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
-                      Register Now
-                    </button>
-                    <div className="gap-0.5 grid max-[1024px]:px-2">
-                      <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
-                        <sup className="absolute left-0 text-[9px] pr-1 top-1">
-                          1
-                        </sup>
-                        Three quarterly payments of $222.00.
-                      </p>
-                      <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
-                        <sup className="absolute left-0 text-[9px] pr-1 top-1">
-                          2
-                        </sup>
-                        Total price of $999 for 1st payment of $333.00 + three
-                        quarterly payments of $222.00 for an annual
-                        subscription.
-                      </p>
-                    </div>
+                    {(() => {
+                      const pricingInfo = getPricingDisplay();
+                      if (pricingInfo?.type === 'subscription') {
+                        return (
+                          <>
+                            <p className="flex text-[#3322FF] text-[48px] font-bold font-Poppins items-center leading-[48px]">
+                              {pricingInfo.mainPrice}
+                              <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
+                                {pricingInfo.mainLabel}
+                              </sub>{" "}
+                              <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[5px] pl-0.5">
+                                12
+                              </sup>
+                            </p>
+                            <Link to="/checkout" className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
+                              Register Now
+                            </Link>
+                            <div className="gap-0.5 grid max-[1024px]:px-2">
+                              <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                                <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                                  1
+                                </sup>
+                                Three quarterly payments of {formatCoursePrice(pricingInfo.quarterlyUsd)}.
+                              </p>
+                              <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                                <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                                  2
+                                </sup>
+                                Total: {pricingInfo.total} for annual subscription.
+                              </p>
+                            </div>
+                          </>
+                        );
+                      } else if (pricingInfo?.type === 'custom') {
+                        return (
+                          <>
+                            <p className="flex text-[#3322FF] text-[48px] font-bold font-Poppins items-center leading-[48px]">
+                              {pricingInfo.mainPrice}
+                              <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
+                                {pricingInfo.mainLabel}
+                              </sub>{" "}
+                              <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[5px] pl-0.5">
+                                12
+                              </sup>
+                            </p>
+                            <Link to="/checkout" className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
+                              Enroll Now
+                            </Link>
+                            <div className="gap-0.5 grid max-[1024px]:px-2">
+                              <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                                <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                                  1
+                                </sup>
+                                Three quarterly payments of {formatCoursePrice(pricingInfo.quarterlyUsd)}.
+                              </p>
+                              <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                                <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                                  2
+                                </sup>
+                                Total: {pricingInfo.total} for annual subscription.
+                              </p>
+                            </div>
+                          </>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </li>
-                <li className="w-[320px] lg:w-full h-full lg:h-[210px] border-[1px] border-[#111111] rounded-[50px]  grid lg:flex items-center">
-                  <div className="bg-[#282828] rounded-[35px] lg:rounded-[60px] -m-5 lg:-m-4 pt-[18px] pb-10 lg:py-2.5 px-11 lg:px-[50px]  w-[calc(100%+40px)] md:w-[calc(100%+50px)] lg:w-[535px] relative h-[309px] lg:h-[calc(100%+32px)] ">
-                    <h2 className="text-white text-[24px] lg:text-[32px] -tracking-[.05em] leading-[24px] lg:leading-[48px] font-Poppins font-medium !m-0 max-[1024px]:!mb-4">
-                      Annual <br /> Subscription
-                    </h2>
-                    <p className="text-white text-[14px] font-Montserrat leading-[24px] font-medium">
-                      Unlock{" "}
-                      <strong className="text-[20px] font-bold">full </strong>
-                      catalogue access to our{" "}
-                      <strong className="text-[20px] font-bold">
-                        top-rated{" "}
-                      </strong>{" "}
-                      <br />
-                      courses and professional certificates.
-                    </p>
-                    <div className="size-20 lg:size-[100px] absolute -bottom-10 lg:top-1/2 max-[1024px]:left-1/2 lg:-right-[50px] max-[1024px]:-translate-x-1/2 lg:-translate-y-1/2 rounded-full  grid lg:flex items-center justify-center bg-[#CCDD00]">
-                      <img src="../images/edX.png" alt="" />
+                {courseData?.pricing?.type === 'subscription' && (
+                  <li className="w-[320px] lg:w-full h-full lg:h-[210px] border-[1px] border-[#111111] rounded-[50px]  grid lg:flex items-center">
+                    <div className="bg-[#282828] rounded-[35px] lg:rounded-[60px] -m-5 lg:-m-4 pt-[18px] pb-10 lg:py-2.5 px-11 lg:px-[50px]  w-[calc(100%+40px)] md:w-[calc(100%+50px)] lg:w-[535px] relative h-[309px] lg:h-[calc(100%+32px)] ">
+                      <h2 className="text-white text-[24px] lg:text-[32px] -tracking-[.05em] leading-[24px] lg:leading-[48px] font-Poppins font-medium !m-0 max-[1024px]:!mb-4">
+                        Annual <br /> Subscription
+                      </h2>
+                      <p className="text-white text-[14px] font-Montserrat leading-[24px] font-medium">
+                        Unlock{" "}
+                        <strong className="text-[20px] font-bold">full </strong>
+                        catalogue access to our{" "}
+                        <strong className="text-[20px] font-bold">
+                          top-rated{" "}
+                        </strong>{" "}
+                        <br />
+                        courses and professional certificates.
+                      </p>
+                      <div className="size-20 lg:size-[100px] absolute -bottom-10 lg:top-1/2 max-[1024px]:left-1/2 lg:-right-[50px] max-[1024px]:-translate-x-1/2 lg:-translate-y-1/2 rounded-full  grid lg:flex items-center justify-center bg-[#CCDD00]">
+                        <img src="../images/edX.png" alt="" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="max-[767px]:pt-[80px] max-[1024px]:pt-[58px] px-2.5 lg:pl-[102px] lg:pr-12">
-                    <ul className="grid gap-3">
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Unlimited access to our top-rated courses.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Specialized professional certificates.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Exclusive World-class Content.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Global learning experiences.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Proven career outcomes.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Internationally recognized certificates.
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div
-                    className="w-full lg:w-[283px] max-[1024px]:flex max-[1024px]:flex-col max-[1024px]:justify-center 
-                  max-[1024px]:items-center max-[1024px]:pb-4 max-[767px]:w-[264px] max-[767px]:mx-auto"
-                  >
-                    <p className="flex text-[#282828] text-[48px] font-bold font-Poppins items-center leading-[98px]">
-                      $333
-                      <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
-                        / 1{" "}
-                        <sup className="text-[10px] font-Montserrat font-medium leading-[100%] -ml-[5px]">
-                          st
-                        </sup>{" "}
-                        Payment
-                      </sub>{" "}
-                      <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[4px] pl-0.5">
-                        1
-                      </sup>
-                    </p>
-                    <div className="gap-0.5 grid">
-                      <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
-                        <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                    <div className="max-[767px]:pt-[80px] max-[1024px]:pt-[58px] px-2.5 lg:pl-[102px] lg:pr-12">
+                      <ul className="grid gap-3">
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Unlimited access to our top-rated courses.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Specialized professional certificates.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Exclusive World-class Content.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Global learning experiences.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Proven career outcomes.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Internationally recognized certificates.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      className="w-full lg:w-[283px] max-[1024px]:flex max-[1024px]:flex-col max-[1024px]:justify-center 
+                    max-[1024px]:items-center max-[1024px]:pb-4 max-[767px]:w-[264px] max-[767px]:mx-auto"
+                    >
+                      <p className="flex text-[#282828] text-[48px] font-bold font-Poppins items-center leading-[48px]">
+                        {getDisplayPrice("first")}
+                        <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
+                          / 1{" "}
+                          <sup className="text-[10px] font-Montserrat font-medium leading-[100%] -ml-[5px]">
+                            st
+                          </sup>{" "}
+                          Payment
+                        </sub>{" "}
+                        <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[4px] pl-0.5">
                           1
                         </sup>
-                        Registration applies to the first payment of $333.00,
-                        after which plans are converted to quartely.
                       </p>
+                      <div className="gap-0.5 grid">
+                        <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                          <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                            1
+                          </sup>
+                          Registration applies to the first payment of {formatCoursePrice(firstPaymentAmountUSD)},
+                          after which plans are converted to quarterly.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </li>
+                  </li>
+                )}
+                {courseData?.pricing?.type === 'custom' && (
+                  <li className="w-[320px] lg:w-full h-full lg:h-[210px] border-[1px] border-[#111111] rounded-[50px]  grid lg:flex items-center">
+                    <div className="bg-[#282828] rounded-[35px] lg:rounded-[60px] -m-5 lg:-m-4 pt-[18px] pb-10 lg:py-2.5 px-11 lg:px-[50px]  w-[calc(100%+40px)] md:w-[calc(100%+50px)] lg:w-[535px] relative h-[309px] lg:h-[calc(100%+32px)] ">
+                      <h2 className="text-white text-[24px] lg:text-[32px] -tracking-[.05em] leading-[24px] lg:leading-[48px] font-Poppins font-medium !m-0 max-[1024px]:!mb-4">
+                        Program <br /> Enrollment
+                      </h2>
+                      <p className="text-white text-[14px] font-Montserrat leading-[24px] font-medium">
+                        Enroll in this{" "}
+                        <strong className="text-[20px] font-bold">exclusive </strong>
+                        program with{" "}
+                        <strong className="text-[20px] font-bold">
+                          flexible{" "}
+                        </strong>{" "}
+                        <br />
+                        payment options.
+                      </p>
+                      <div className="size-20 lg:size-[100px] absolute -bottom-10 lg:top-1/2 max-[1024px]:left-1/2 lg:-right-[50px] max-[1024px]:-translate-x-1/2 lg:-translate-y-1/2 rounded-full  grid lg:flex items-center justify-center bg-[#CCDD00]">
+                        {courseData?.course_provider?.image ? (
+                          <img src={courseData.course_provider.image} alt={courseData.course_provider.name} className="max-h-[50px] max-w-[80px]" />
+                        ) : (
+                          <img src="../images/edX.png" alt="" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="max-[767px]:pt-[80px] max-[1024px]:pt-[58px] px-2.5 lg:pl-[102px] lg:pr-12">
+                      <ul className="grid gap-3">
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Flexible quarterly payment plan.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Industry-recognized certification.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Expert-led interactive sessions.
+                          </span>
+                        </li>
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            Career advancement opportunities.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      className="w-full lg:w-[283px] max-[1024px]:flex max-[1024px]:flex-col max-[1024px]:justify-center 
+                    max-[1024px]:items-center max-[1024px]:pb-4 max-[767px]:w-[264px] max-[767px]:mx-auto"
+                    >
+                      <p className="flex text-[#282828] text-[48px] font-bold font-Poppins items-center leading-[48px]">
+                        {formatCoursePrice(courseData?.pricing?.first_payment)}
+                        <sub className="text-[16px] font-Montserrat font-medium leading-[100%] pt-2 pl-2">
+                          / 1{" "}
+                          <sup className="text-[10px] font-Montserrat font-medium leading-[100%] -ml-[5px]">
+                            st
+                          </sup>{" "}
+                          Payment
+                        </sub>{" "}
+                        <sup className="text-[10px] font-Poppins font-medium leading-[100%] top-[4px] pl-0.5">
+                          1
+                        </sup>
+                      </p>
+                      <div className="gap-0.5 grid">
+                        <p className="text-[12px] text-[#363636] font-Montserrat leading-[15px] relative pl-2.5">
+                          <sup className="absolute left-0 text-[9px] pr-1 top-1">
+                            1
+                          </sup>
+                          Registration applies to the first payment of {formatCoursePrice(courseData?.pricing?.first_payment)},
+                          after which plans are converted to quarterly.
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                )}
               </ul>
             </div>
           </Container>
         </section>
+        
+        {showPopup && (
+          <EnquiryPopup
+            courseId={courseData?.id}
+            courseTitle={courseData?.title}
+            user={user}
+            onClose={closePopup}
+            onSuccess={markSubmitted}
+            sourcePage={location.pathname}
+          />
+        )}
       </Layout>
     </>
   );

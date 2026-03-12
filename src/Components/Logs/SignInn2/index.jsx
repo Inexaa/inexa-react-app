@@ -24,8 +24,17 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SignInSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(4, 'Password must be at least 4 characters').required('Password is required'),
+  email: Yup.string()
+    .trim()
+    .lowercase()
+    .email('Invalid email address')
+    .required('Email is required')
+    .test('not-only-whitespace', 'Email cannot be only whitespace', 
+      value => value && value.trim().length > 0),
+  password: Yup.string()
+    .required('Password is required')
+    .test('not-only-whitespace', 'Password cannot be only whitespace', 
+      value => value && value.trim().length > 0),
 });
 
 export default function SignInn2({ open, onClose, switchToSignUp, switchToForgotPasword,setLogin }) { 
@@ -34,16 +43,18 @@ export default function SignInn2({ open, onClose, switchToSignUp, switchToForgot
 
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
-      const response = await axios.post('/auth/signin', {
-        email: values.email,
-        password: values.password,
-      });
+      const trimmedValues = {
+        email: values.email.trim().toLowerCase(),
+        password: values.password.trim(),
+      };
+
+      const response = await axios.post('/auth/signin', trimmedValues);
       if (response.status === 200) {
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.data.user));
         setLogin(true);
         toast.success(response.data.message || 'Login successful!');
-        onClose();  // Close on successful login
+        onClose();
       } else {
         toast.error(response.data.message || 'Login failed');
       }
@@ -52,6 +63,10 @@ export default function SignInn2({ open, onClose, switchToSignUp, switchToForgot
       const errorMessage = error.response?.data?.message || 'Login failed. Check credentials.';
       setLoginError(errorMessage);
       toast.error(errorMessage);
+      if (error.response?.data?.emailVerificationRequired) {
+        setLoginError('Please verify your email first. A new verification link has been sent to your email.');
+      }
+      
       setFieldError('email', ' ');
     } finally {
       setSubmitting(false);
@@ -109,7 +124,7 @@ export default function SignInn2({ open, onClose, switchToSignUp, switchToForgot
                 <Form className="sign-up-fields flex flex-col gap-4 sm:w-[329px] mx-auto">
                   <div className="input-item">
                     <label className="log-label-white" htmlFor="email">
-                      Email address
+                      Email address <span className="text-red-500">*</span>
                     </label>
                     <Field
                       id="email"
@@ -123,7 +138,7 @@ export default function SignInn2({ open, onClose, switchToSignUp, switchToForgot
 
                   <div className="input-item">
                     <label className="log-label-white" htmlFor="password">
-                      Password
+                      Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <Field

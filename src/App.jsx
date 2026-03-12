@@ -15,6 +15,8 @@ import AccountSetting from "./Pages/AccountSetting";
 import UserVerification from "./Pages/Userverification";
 import CourseAccess from "./Pages/CourseAccess";
 import Courses2 from "./Pages/Courses2";
+import ResetPassword from "./Pages/ResetPassword";
+import VerifyEmail from "./Pages/VerifyEmail";
 import { ToastContainer, toast } from 'react-toastify';
 
 import "./App.css";
@@ -59,6 +61,8 @@ function App() {
             <Route path="/user-verification" element={<UserVerification />} />
             <Route path="/access-this-course" element={<CourseAccess />} />
             <Route path="/courses" element={<Courses2 />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
               path="/checkout"
               element={
