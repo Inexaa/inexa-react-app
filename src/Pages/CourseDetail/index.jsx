@@ -282,6 +282,25 @@ const CourseDetail = () => {
   ];
   const style = getCourseTypeStyles(courseData?.program_type_slug);
 
+  // Inexa program card content (admin-configurable for programs)
+  const defaultProgramCardTitle =
+    "Inexa's Uniquely Designed Interactive Learning Experiences";
+  const defaultProgramCardSubtitle =
+    "Fully interactive 3000+ learning experiences where you will interact with your peers, Inexa's instructors, and support agents.";
+
+  const programCardTitle =
+    courseData?.program_card_title || defaultProgramCardTitle;
+  const programCardSubtitle =
+    courseData?.program_card_subtitle || defaultProgramCardSubtitle;
+
+  const programCardBullets = (courseData?.program_card_bullets || "")
+    .split("\n")
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+  const programCardCaption = courseData?.program_card_caption || "";
+  const programCardInfoUrl = courseData?.program_card_info_url || "";
+
   return (
     <>
       <Layout>
@@ -372,7 +391,7 @@ const CourseDetail = () => {
                     <Link
                       className="btn-blue-transparent btn-blue-fill h-[40px] py-0 px-[22px] md:px-6 lg:px-8 flex items-center justify-center 
                       md:text-[14px] lg:text-[16px] -tracking-[.02em] font-medium font-Poppins min-w-min"
-                      to="/checkout"
+                      to={`/checkout?course=${courseId}`}
                       data-discover="true"
                     >
                       Register now
@@ -952,18 +971,17 @@ const CourseDetail = () => {
             <div className="lg:px-10 grid gap-5">
               <ul className="grid md:flex lg:grid gap-[60px] md:gap-[56px] md:pl-4 md:items-baseline justify-center">
                 <li className="w-[320px] lg:w-full h-full lg:h-[210px] border-[1px] border-[#111111] rounded-[50px]  grid lg:flex items-center">
-                  <div className="bg-[#CCDD00] rounded-[35px] lg:rounded-[60px] -m-5 lg:-m-4 pt-[18px] pb-10 lg:py-2.5 px-11 lg:px-[50px] w-[calc(100%+40px)] md:w-[calc(100%+50px)] lg:w-[535px] relative h-[309px] lg:h-[calc(100%+32px)] max-[1024px]:grid max-[1024px]:gap-4 " style={{ backgroundColor: style.bgColor, color: style.textColor }}>
-                    <h2 className="text-[#282828] text-[24px] md:text-[28px] lg:text-[32px] -tracking-[.05em] leading-[28px] lg:leading-[48px] font-Poppins font-medium !m-0 max-[1024px]:max-w-[255px] mb-4 lg:mb-0" style={{ backgroundColor: style.bgColor, color: style.textColor }}>
-                      Inexa's Uniquely Designed Interactive Learning Experiences
+                  <div
+                    className="bg-[#CCDD00] rounded-[35px] lg:rounded-[60px] -m-5 lg:-m-4 pt-[18px] pb-10 lg:py-2.5 px-11 lg:px-[50px] w-[calc(100%+40px)] md:w-[calc(100%+50px)] lg:w-[535px] relative h-[309px] lg:h-[calc(100%+32px)] max-[1024px]:grid max-[1024px]:gap-4 "
+                    style={{ backgroundColor: style.bgColor, color: style.textColor }}
+                  >
+                    <h2
+                      className="text-[24px] md:text-[28px] lg:text-[32px] -tracking-[.05em] leading-[28px] lg:leading-[48px] font-Poppins font-medium !m-0 max-[1024px]:max-w-[255px] mb-4 lg:mb-0"
+                    >
+                      {programCardTitle}
                     </h2>
-                    <p className="text-[#282828] text-[14px] font-Montserrat leading-[24px] font-medium" style={{ color: style.textColor }}>
-                      Fully interactive{" "}
-                      <strong className="text-[20px] font-bold">3000+</strong>{" "}
-                      learning experiences where you will{" "}
-                      <strong className="text-[20px] font-bold">
-                        interact
-                      </strong>{" "}
-                      with your peers, Inexa's instructors, and support agents.
+                    <p className="text-[14px] font-Montserrat leading-[24px] font-medium">
+                      {programCardSubtitle}
                     </p>
                     <div className="size-20 lg:size-[100px] absolute -bottom-10 lg:top-1/2 max-[1024px]:left-1/2 lg:-right-[50px] max-[1024px]:-translate-x-1/2 lg:-translate-y-1/2 rounded-full  grid lg:flex items-center justify-center bg-[#282828]">
                       <img
@@ -975,79 +993,67 @@ const CourseDetail = () => {
                   </div>
                   <div className="max-[767px]:pt-[80px] max-[1024px]:pt-[58px] px-2.5 lg:pl-[102px] lg:pr-12">
                     <ul className="grid gap-3">
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Fully interactive learning experiences.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          specialized subject matter experts.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Impactful learning journeys.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Global cost-effective programs.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Real-World Practical Application.
-                        </span>
-                      </li>
-                      <li className="flex gap-3 items-center">
-                        <i>
-                          <img
-                            className="max-[767px]:w-[8px]"
-                            src="../images/logo-icon.svg"
-                            alt=""
-                          />
-                        </i>
-                        <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
-                          Tailored programs for enterprises worldwide.
-                        </span>
-                      </li>
+                      {programCardBullets.length > 0
+                        ? programCardBullets.map((item, idx) => (
+                            <li key={idx} className="flex gap-3 items-center">
+                              <i>
+                                <img
+                                  className="max-[767px]:w-[8px]"
+                                  src="../images/logo-icon.svg"
+                                  alt=""
+                                />
+                              </i>
+                              <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                                {item}
+                              </span>
+                            </li>
+                          ))
+                        : [
+                            "Fully interactive learning experiences.",
+                            "Specialized subject matter experts.",
+                            "Impactful learning journeys.",
+                            "Global cost-effective programs.",
+                            "Real-World Practical Application.",
+                            "Tailored programs for enterprises worldwide.",
+                          ].map((item, idx) => (
+                            <li key={idx} className="flex gap-3 items-center">
+                              <i>
+                                <img
+                                  className="max-[767px]:w-[8px]"
+                                  src="../images/logo-icon.svg"
+                                  alt=""
+                                />
+                              </i>
+                              <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                                {item}
+                              </span>
+                            </li>
+                          ))}
+                      {programCardCaption && (
+                        <li className="flex gap-3 items-center">
+                          <i>
+                            <img
+                              className="max-[767px]:w-[8px]"
+                              src="../images/logo-icon.svg"
+                              alt=""
+                            />
+                          </i>
+                          <span className="text-[14px] text-[#282828] font-medium font-Montserrat leading-[17px]">
+                            {programCardCaption}
+                          </span>
+                        </li>
+                      )}
                     </ul>
+                    {programCardInfoUrl && (
+                      <div className="mt-3">
+                        <Link
+                          to={programCardInfoUrl}
+                          className="text-[#3322FF] text-[12px] underline font-Montserrat font-medium"
+                        >
+                          Get more information
+                        </Link>
+                      </div>
+                    )}
                   </div>
                   <div className="w-full max-[767px]:mx-auto max-[767px]:w-[264px] lg:w-[283px] max-[1024px]:flex max-[1024px]:flex-col max-[1024px]:justify-center max-[1024px]:items-center max-[1024px]:mt-4 max-[1024px]:pb-4">
                     {(() => {
@@ -1064,7 +1070,7 @@ const CourseDetail = () => {
                                 12
                               </sup>
                             </p>
-                            <Link to="/checkout" className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
+                            <Link to={`/checkout?course=${courseId}`} className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
                               Register Now
                             </Link>
                             <div className="gap-0.5 grid max-[1024px]:px-2">
@@ -1095,7 +1101,7 @@ const CourseDetail = () => {
                                 12
                               </sup>
                             </p>
-                            <Link to="/checkout" className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
+                            <Link to={`/checkout?course=${courseId}`} className="mt-[7px] mb-[11px] rounded-full bg-[#3322FF] h-[42px] w-[153px] text-[14px] text-white font-medium -tracking-[.02em] font-Poppins flex items-center justify-center">
                               Enroll Now
                             </Link>
                             <div className="gap-0.5 grid max-[1024px]:px-2">

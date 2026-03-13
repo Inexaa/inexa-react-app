@@ -18,7 +18,7 @@ import Container from "../../Components/Container";
 import "./home.css";
 import axiosInstance from "../../api/axiosInstance";
 
-// Number Counter Data
+// Number Counter Data (defaults; overridden by API data when available)
 const homeCounterVals = [
   {
     id: 1,
@@ -75,6 +75,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   // const [favorites, setFavorites] = useState([]);
+  const [siteStats, setSiteStats] = useState([]);
 
   useEffect(() => {
     const currentWord = words[currentIndex];
@@ -173,7 +174,30 @@ const Home = () => {
       }
     };
 
+    const fetchSiteStatistics = async () => {
+      try {
+        const res = await axiosInstance.get("/site-statistics");
+        const apiStats = Array.isArray(res?.data) ? res.data : [];
+
+        const mappedStats = apiStats
+          .filter((s) => s?.status)
+          .map((s, index) => ({
+            id: s.id ?? index + 1,
+            countNum: Number(s.value) || 0,
+            countTitle: s.title || "",
+            counterSuffix: "",
+          }));
+
+        if (mappedStats.length) {
+          setSiteStats(mappedStats);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch site statistics :>> ", err);
+      }
+    };
+
     fetchCourses();
+    fetchSiteStatistics();
   }, []);
 
   return (
@@ -608,7 +632,7 @@ const Home = () => {
 
               <div className="counter-home mb-6 md:mb-12 lg:mb-[80px]">
                 <NumberCounter
-                  counterValues={homeCounterVals}
+                  counterValues={siteStats.length ? siteStats : homeCounterVals}
                   headingClass={"counter-stroke text-center md:text-left"}
                   paraClass={"text-white lg:max-w-[390px]"}
                 />
@@ -664,14 +688,14 @@ const Home = () => {
           </Container>
         </section>
 
-        <Container>
+        {/* <Container>
           <section
             className="lg:mx-4 2xl:mx-auto wrapper rounded-[24px] overflow-hidden carousel relative h-[100px]  lg:h-[120px] 
           -mt-11 pt-11 border-[#282828] border-[1px] border-t-0"
           >
             <HomeCarousel />
           </section>
-        </Container>
+        </Container> */}
 
         {courses?.courses_certificates?.length > 0 && (
           <section
